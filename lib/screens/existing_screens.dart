@@ -1,13 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:rural_education_app/models/student_profile.dart';
+import 'package:rural_education_app/screens/home_screens.dart';
+import 'package:rural_education_app/screens/profile_screen.dart';
+import 'package:rural_education_app/services/database_service.dart';
 
-class ExistingScreens extends StatelessWidget {
-  // void Function(StudentProfile)? onProfileSelected;
-  // ExistingScreens({super.key, required this.onProfileSelected});
+class ExistingScreens extends StatefulWidget {
+  final Function(StudentProfile)? onProfileSelected;
 
-  final List<StudentProfile> _profiles = [];
+  const ExistingScreens({super.key, this.onProfileSelected});
 
-  ExistingScreens({super.key});
+  @override
+  State<ExistingScreens> createState() => _ExistingScreensState();
+}
+
+class _ExistingScreensState extends State<ExistingScreens> {
+  List<StudentProfile> _profiles = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfiles();
+  }
+
+  void _loadProfiles() {
+    setState(() {
+      _profiles = DatabaseService.getAllProfiles();
+      _isLoading = false;
+    });
+  }
 
   void _loginWithProfile(BuildContext context, StudentProfile profile) {
     showDialog(
@@ -21,7 +42,18 @@ class ExistingScreens extends StatelessWidget {
             children: [
               const Icon(Icons.lock, color: Colors.green),
               const SizedBox(width: 8),
-              Text('Welcome back, ${profile.name}!'),
+              Column(
+                children: [
+                  Text('Welcome back'),
+                  Text(
+                    profile.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           content: Column(
@@ -47,7 +79,17 @@ class ExistingScreens extends StatelessWidget {
                   if (value.length == 4) {
                     if (value == profile.pin) {
                       Navigator.pop(ctx);
-                      // widget.onProfileSelected(profile);
+
+                      if (widget.onProfileSelected != null) {
+                        widget.onProfileSelected!(profile);
+                      }
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomeScreens(profile: profile),
+                        ),
+                      );
                     } else {
                       Navigator.pop(ctx);
                       ScaffoldMessenger.of(ctx).showSnackBar(
@@ -76,41 +118,107 @@ class ExistingScreens extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // App Logo & Title
-          const SizedBox(height: 30),
-          Center(
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.school, size: 60, color: Colors.green.shade700),
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Center(
-            child: Text(
-              'Rural Education',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
-            ),
-          ),
-          const Center(
-            child: Text(
-              'Learn anytime, anywhere - even offline!',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-          ),
-          const SizedBox(height: 30),
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-          if (_profiles.isNotEmpty) ...[
+    if (_profiles.isEmpty) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.person_off, size: 80, color: Colors.grey.shade400),
+              const SizedBox(height: 16),
+              const Text(
+                'No Profiles Found',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Please create a profile to get started',
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () {
+                  // ✅ Use push to keep ExistingScreens in stack
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(
+                        onProfileSelected: (profile) {
+                          print('Profile created: ${profile.name}');
+                          // After creating profile, refresh the list
+                          _loadProfiles();
+                        },
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Create Profile'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // App Logo & Title
+            const SizedBox(height: 20),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.school,
+                  size: 60,
+                  color: Colors.green.shade700,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Center(
+              child: Text(
+                'Rural Education',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
+            ),
+            const Center(
+              child: Text(
+                'Learn anytime, anywhere - even offline!',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // ✅ Fixed: Existing Profiles Header
             Row(
               children: [
                 const Icon(Icons.people, color: Colors.green),
@@ -126,11 +234,20 @@ class ExistingScreens extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            ...List.generate(_profiles.length, ((index) {
+            // ✅ Fixed: Profile Cards with better spacing
+            ...List.generate(_profiles.length, (index) {
               final profile = _profiles[index];
               return Card(
-                margin: const EdgeInsets.all(12.0), // ✅ FIX 2: Added 'const'
+                margin: const EdgeInsets.only(bottom: 8), // ✅ Less gap
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
                   leading: CircleAvatar(
                     backgroundColor: Colors.green.shade100,
                     child: Text(
@@ -138,23 +255,25 @@ class ExistingScreens extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.green.shade700,
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                        fontSize: 18,
                       ),
                     ),
                   ),
                   title: Text(
                     profile.name,
-                    style: TextStyle(
-                      color: Colors.green.shade700,
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                      fontSize: 16,
                     ),
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (profile.classCode != null)
-                        Text('Class: ${profile.classCode}'),
+                        Text(
+                          'Class: ${profile.classCode}',
+                          style: const TextStyle(fontSize: 13),
+                        ),
                       Text(
                         'Created: ${_formatDate(profile.createdAt)}',
                         style: const TextStyle(
@@ -165,13 +284,44 @@ class ExistingScreens extends StatelessWidget {
                     ],
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  // ✅ FIX 3: Pass context to the method
                   onTap: () => _loginWithProfile(context, profile),
                 ),
               );
-            })),
+            }),
+
+            const SizedBox(height: 20),
+
+            // ✅ Fixed: Divider with better visibility
+            const Divider(thickness: 1, color: Colors.grey),
+
+            const SizedBox(height: 16),
+
+            // ✅ Fixed: Create New Profile Button - More Visible
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.person_add),
+                label: const Text(
+                  'Create New Profile',
+                  style: TextStyle(fontSize: 16),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade700,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
           ],
-        ],
+        ),
       ),
     );
   }
