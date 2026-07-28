@@ -38,10 +38,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _profiles = DatabaseService.getAllProfiles();
       _isLoading = false;
     });
-    DatabaseService.getAllProfiles();
+    print('📋 ProfileScreen: Loaded ${_profiles.length} profiles');
   }
 
   Future<void> _createProfile() async {
+    // Validate inputs
     if (_nameController.text.trim().isEmpty) {
       _showError('Please enter your name');
       return;
@@ -51,6 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
+    // Create profile
     final profile = StudentProfile.create(
       name: _nameController.text.trim(),
       pin: _pinController.text.trim(),
@@ -59,35 +61,106 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : _classController.text.trim(),
     );
 
+    // Save to local storage
     await DatabaseService.saveProfile(profile);
 
+    // Clear form
     _nameController.clear();
     _pinController.clear();
     _classController.clear();
 
+    // Refresh profiles list
     _loadProfiles();
 
-    // Create button ke andar, after saving profile:
-
-    // After saving profile
+    // Show success message
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Profile created for ${profile.name}! 🎉'),
+          content: Text('✅ Profile created for ${profile.name}! 🎉'),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 2),
         ),
       );
 
+      // Call callback
       widget.onProfileSelected(profile);
 
-      // ✅ Use pushReplacement to go to HomeScreens
-      // AND remove ProfileScreen from stack
+      // Navigate to HomeScreens
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreens(profile: profile)),
       );
     }
+  }
+
+  void _loginWithProfile(StudentProfile profile) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        final pinController = TextEditingController();
+
+        return AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.lock, color: Colors.green),
+              const SizedBox(width: 8),
+              Text('Welcome, ${profile.name}!'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Enter your 4-digit PIN:'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: pinController,
+                obscureText: true,
+                maxLength: 4,
+                keyboardType: TextInputType.number,
+                autofocus: true,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 24, letterSpacing: 8),
+                decoration: const InputDecoration(
+                  hintText: '****',
+                  border: OutlineInputBorder(),
+                  counterText: '',
+                  prefixIcon: Icon(Icons.pin),
+                ),
+                onChanged: (value) {
+                  if (value.length == 4) {
+                    if (value == profile.pin) {
+                      Navigator.pop(ctx);
+                      widget.onProfileSelected(profile);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomeScreens(profile: profile),
+                        ),
+                      );
+                    } else {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('❌ Wrong PIN! Try again.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showError(String message) {
@@ -103,7 +176,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -166,6 +239,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 12),
 
+              // Profile cards
               ...List.generate(_profiles.length, (index) {
                 final profile = _profiles[index];
                 return Card(
@@ -212,18 +286,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {
-                      widget.onProfileSelected(profile);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomeScreens(profile: profile),
-                        ),
-                      );
-                    },
+                    onTap: () => _loginWithProfile(profile),
                   ),
                 );
               }),
+
               const SizedBox(height: 20),
               const Divider(thickness: 1),
               const SizedBox(height: 16),

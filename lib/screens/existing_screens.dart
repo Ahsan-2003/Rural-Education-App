@@ -28,6 +28,7 @@ class _ExistingScreensState extends State<ExistingScreens> {
       _profiles = DatabaseService.getAllProfiles();
       _isLoading = false;
     });
+    print('📋 ExistingScreens: Loaded ${_profiles.length} profiles');
   }
 
   void _loginWithProfile(BuildContext context, StudentProfile profile) {
@@ -43,8 +44,9 @@ class _ExistingScreensState extends State<ExistingScreens> {
               const Icon(Icons.lock, color: Colors.green),
               const SizedBox(width: 8),
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Welcome back'),
+                  const Text('Welcome back,'),
                   Text(
                     profile.name,
                     style: const TextStyle(
@@ -78,12 +80,14 @@ class _ExistingScreensState extends State<ExistingScreens> {
                 onChanged: (value) {
                   if (value.length == 4) {
                     if (value == profile.pin) {
-                      Navigator.pop(ctx);
+                      Navigator.pop(ctx); // Close dialog
 
+                      // Call callback if provided
                       if (widget.onProfileSelected != null) {
                         widget.onProfileSelected!(profile);
                       }
 
+                      // Navigate to HomeScreens
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -91,8 +95,8 @@ class _ExistingScreensState extends State<ExistingScreens> {
                         ),
                       );
                     } else {
-                      Navigator.pop(ctx);
-                      ScaffoldMessenger.of(ctx).showSnackBar(
+                      Navigator.pop(ctx); // Close dialog
+                      ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('❌ Wrong PIN! Try again.'),
                           backgroundColor: Colors.red,
@@ -119,7 +123,7 @@ class _ExistingScreensState extends State<ExistingScreens> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_profiles.isEmpty) {
@@ -146,15 +150,13 @@ class _ExistingScreensState extends State<ExistingScreens> {
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: () {
-                  // ✅ Use push to keep ExistingScreens in stack
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ProfileScreen(
                         onProfileSelected: (profile) {
-                          print('Profile created: ${profile.name}');
-                          // After creating profile, refresh the list
-                          _loadProfiles();
+                          print('✅ Profile created: ${profile.name}');
+                          _loadProfiles(); // Refresh list
                         },
                       ),
                     ),
@@ -218,7 +220,7 @@ class _ExistingScreensState extends State<ExistingScreens> {
             ),
             const SizedBox(height: 30),
 
-            // ✅ Fixed: Existing Profiles Header
+            // Existing Profiles Header
             Row(
               children: [
                 const Icon(Icons.people, color: Colors.green),
@@ -234,11 +236,11 @@ class _ExistingScreensState extends State<ExistingScreens> {
             ),
             const SizedBox(height: 12),
 
-            // ✅ Fixed: Profile Cards with better spacing
+            // Profile Cards
             ...List.generate(_profiles.length, (index) {
               final profile = _profiles[index];
               return Card(
-                margin: const EdgeInsets.only(bottom: 8), // ✅ Less gap
+                margin: const EdgeInsets.only(bottom: 8),
                 elevation: 2,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -291,12 +293,12 @@ class _ExistingScreensState extends State<ExistingScreens> {
 
             const SizedBox(height: 20),
 
-            // ✅ Fixed: Divider with better visibility
+            // Divider
             const Divider(thickness: 1, color: Colors.grey),
 
             const SizedBox(height: 16),
 
-            // ✅ Fixed: Create New Profile Button - More Visible
+            // Create New Profile Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -306,8 +308,8 @@ class _ExistingScreensState extends State<ExistingScreens> {
                     MaterialPageRoute(
                       builder: (context) => ProfileScreen(
                         onProfileSelected: (profile) {
-                          print('Profile created: ${profile.name}');
-                          _loadProfiles();
+                          print('✅ Profile created: ${profile.name}');
+                          _loadProfiles(); // Refresh list
                         },
                       ),
                     ),
