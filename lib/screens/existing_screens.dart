@@ -301,7 +301,17 @@ class _ExistingScreensState extends State<ExistingScreens> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(
+                        onProfileSelected: (profile) {
+                          print('Profile created: ${profile.name}');
+                          _loadProfiles();
+                        },
+                      ),
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.person_add),
                 label: const Text(
