@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rural_education_app/models/student_profile.dart';
 import 'package:rural_education_app/screens/existing_screens.dart';
-import 'package:rural_education_app/screens/home_screens.dart';
 import 'package:rural_education_app/screens/profile_screen.dart';
 import 'package:rural_education_app/services/database_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
