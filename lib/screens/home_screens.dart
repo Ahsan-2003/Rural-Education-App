@@ -3,6 +3,7 @@ import 'package:rural_education_app/models/student_profile.dart';
 import 'package:rural_education_app/screens/existing_screens.dart';
 import 'package:rural_education_app/screens/lesson_list_screen.dart';
 import 'package:rural_education_app/services/content_service.dart';
+import 'package:rural_education_app/services/database_service.dart';
 
 class HomeScreens extends StatefulWidget {
   final StudentProfile profile;
@@ -15,12 +16,27 @@ class HomeScreens extends StatefulWidget {
 
 class _HomeScreensState extends State<HomeScreens> {
   late final ContentService _contentService;
+  int _completedLessons = 0;
+  int _totalLessons = 0;
 
   @override
   void initState() {
     super.initState();
     _contentService = ContentService();
+    _loadProgress();
     print('🏠 HomeScreens initialized for ${widget.profile.name}');
+  }
+
+  // NEW: Load progress from database
+  void _loadProgress() {
+    final lessons = _contentService.getLessons();
+    _totalLessons = lessons.length;
+    _completedLessons = DatabaseService.getCompletedLessonsCount(
+      widget.profile.id,
+    );
+
+    print('📊 Progress: $_completedLessons/$_totalLessons lessons completed');
+    DatabaseService.debugPrintProgress(widget.profile.id);
   }
 
   void _logout() {
@@ -35,23 +51,31 @@ class _HomeScreensState extends State<HomeScreens> {
     final lessons = _contentService.getLessons();
     print('📚 Starting learning with ${lessons.length} lessons');
 
+    // Navigate to lesson list and refresh progress when coming back
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => LessonListScreen(
           studentName: widget.profile.name,
           classCode: widget.profile.classCode,
+          studentId: widget.profile.id, // NEW: Pass student ID
           onLogout: _logout,
           lessons: lessons,
         ),
       ),
-    );
+    ).then((_) {
+      // Refresh progress when returning from lessons
+      _loadProgress();
+      setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final profile = widget.profile;
-    final lessons = _contentService.getLessons();
+    final progressPercent = _totalLessons > 0
+        ? (_completedLessons / _totalLessons)
+        : 0.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -104,13 +128,6 @@ class _HomeScreensState extends State<HomeScreens> {
                   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
-              const SizedBox(height: 8),
-
-              // Member Since
-              Text(
-                'Member since: ${_formatDate(profile.createdAt)}',
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
               const SizedBox(height: 30),
 
               // Course Card
@@ -168,33 +185,52 @@ class _HomeScreensState extends State<HomeScreens> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.article,
-                              size: 16,
-                              color: Colors.green,
+
+                      // NEW: Progress Bar
+                      Column(
+                        children: [
+                          // Progress text
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '$_completedLessons of $_totalLessons lessons completed',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          // Progress bar
+                          Container(
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(4),
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${lessons.length} Lessons Available',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                            child: FractionallySizedBox(
+                              widthFactor: progressPercent,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: progressPercent == 1.0
+                                      ? Colors.green
+                                      : Colors.green.shade400,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${(progressPercent * 100).toInt()}% complete',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -207,16 +243,24 @@ class _HomeScreensState extends State<HomeScreens> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Start Learning Button
+                  // Start/Continue Learning Button
                   ElevatedButton.icon(
                     onPressed: _startLearning,
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('Start Learning'),
+                    icon: Icon(
+                      _completedLessons > 0
+                          ? Icons.play_arrow
+                          : Icons.play_arrow,
+                    ),
+                    label: Text(
+                      _completedLessons > 0
+                          ? 'Continue Learning'
+                          : 'Start Learning',
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 28,
+                        horizontal: 24,
                         vertical: 14,
                       ),
                       shape: RoundedRectangleBorder(

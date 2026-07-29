@@ -1,16 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:rural_education_app/models/lesson.dart';
+import 'package:rural_education_app/services/database_service.dart'; // NEW
 
 class LessonViewerScreen extends StatelessWidget {
   final Lesson lesson;
   final String studentName;
+  final String studentId; // NEW
 
   const LessonViewerScreen({
     super.key,
     required this.lesson,
     required this.studentName,
+    required this.studentId, // NEW
   });
+
+  // NEW: Mark lesson as completed
+  void _markAsCompleted(BuildContext context) {
+    DatabaseService.saveProgress(
+      studentId: studentId,
+      lessonId: lesson.id,
+      status: 'completed',
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('✅ "${lesson.title}" completed!'),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+        action: SnackBarAction(
+          label: 'OK',
+          textColor: Colors.white,
+          onPressed: () {},
+        ),
+      ),
+    );
+
+    print('✅ Lesson completed and saved: ${lesson.title}');
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,16 +50,7 @@ class LessonViewerScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.check_circle_outline),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('✅ Lesson marked as complete!'),
-                  backgroundColor: Colors.green,
-                  duration: Duration(seconds: 2),
-                ),
-              );
-              print('✅ Lesson completed: ${lesson.title}');
-            },
+            onPressed: () => _markAsCompleted(context),
             tooltip: 'Mark as Complete',
           ),
         ],
@@ -109,7 +128,7 @@ class LessonViewerScreen extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.arrow_back),
-                      label: const Text('Back to Lessons'),
+                      label: const Text('Back'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.green.shade700,
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -126,19 +145,7 @@ class LessonViewerScreen extends StatelessWidget {
                   // Complete button
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('✅ Great job! Lesson completed!'),
-                            backgroundColor: Colors.green,
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                        print(
-                          '✅ Lesson completed and returning: ${lesson.title}',
-                        );
-                        Navigator.pop(context);
-                      },
+                      onPressed: () => _markAsCompleted(context),
                       icon: const Icon(Icons.check),
                       label: const Text('Mark Complete'),
                       style: ElevatedButton.styleFrom(
