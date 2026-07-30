@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:rural_education_app/models/lesson.dart';
-import 'package:rural_education_app/services/database_service.dart'; // NEW
+import 'package:rural_education_app/services/database_service.dart';
+import 'package:rural_education_app/screens/quiz_screen.dart'; // NEW
 
 class LessonViewerScreen extends StatelessWidget {
   final Lesson lesson;
   final String studentName;
-  final String studentId; // NEW
+  final String studentId;
 
   const LessonViewerScreen({
     super.key,
     required this.lesson,
     required this.studentName,
-    required this.studentId, // NEW
+    required this.studentId,
   });
 
-  // NEW: Mark lesson as completed
+  // Mark lesson as completed
   void _markAsCompleted(BuildContext context) {
     DatabaseService.saveProgress(
       studentId: studentId,
@@ -28,30 +29,85 @@ class LessonViewerScreen extends StatelessWidget {
         content: Text('✅ "${lesson.title}" completed!'),
         backgroundColor: Colors.green,
         duration: const Duration(seconds: 2),
-        action: SnackBarAction(
-          label: 'OK',
-          textColor: Colors.white,
-          onPressed: () {},
-        ),
       ),
     );
 
-    print('✅ Lesson completed and saved: ${lesson.title}');
+    print('✅ Lesson completed: ${lesson.title}');
     Navigator.pop(context);
+  }
+
+  // NEW: Navigate to quiz
+  void _startQuiz(BuildContext context) {
+    if (lesson.quiz == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No quiz available for this lesson'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => QuizScreen(
+          lesson: lesson,
+          quiz: lesson.quiz!,
+          studentId: studentId,
+          studentName: studentName,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final hasQuiz = lesson.quiz != null;
+    final questionCount = lesson.quiz?.questions.length ?? 0;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(lesson.title),
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
         actions: [
+          // NEW: Quiz info in app bar
+          if (hasQuiz)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.quiz, size: 14, color: Colors.white),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$questionCount Q',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           IconButton(
             icon: const Icon(Icons.check_circle_outline),
             onPressed: () => _markAsCompleted(context),
-            tooltip: 'Mark as Complete',
+            tooltip: 'Mark Complete',
           ),
         ],
       ),
@@ -121,42 +177,98 @@ class LessonViewerScreen extends StatelessWidget {
               ],
             ),
             child: SafeArea(
-              child: Row(
+              child: Column(
                 children: [
-                  // Back button
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text('Back'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.green.shade700,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: BorderSide(color: Colors.green.shade300),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                  // NEW: Quiz info banner
+                  if (hasQuiz)
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.orange.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.quiz,
+                            size: 18,
+                            color: Colors.orange.shade700,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Quiz available: $questionCount questions',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.orange.shade700,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
 
-                  const SizedBox(width: 12),
-
-                  // Complete button
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _markAsCompleted(context),
-                      icon: const Icon(Icons.check),
-                      label: const Text('Mark Complete'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade700,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  // Buttons row
+                  Row(
+                    children: [
+                      // Back button
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back),
+                          label: const Text('Back'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.green.shade700,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: BorderSide(color: Colors.green.shade300),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+
+                      // NEW: Take Quiz button
+                      if (hasQuiz) ...[
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _startQuiz(context),
+                            icon: const Icon(Icons.quiz),
+                            label: const Text('Take Quiz'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange.shade700,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
+
+                      // Complete button
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _markAsCompleted(context),
+                          icon: const Icon(Icons.check),
+                          label: const Text('Complete'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green.shade700,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
