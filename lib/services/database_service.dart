@@ -1,10 +1,13 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:rural_education_app/models/student_profile.dart';
+import 'package:uuid/uuid.dart'; // NEW: Add this import
 
 class DatabaseService {
   static late Box _profileBox;
   static late Box _progressBox;
+  static late Box _eventsBox; // NEW: For sync outbox
   static bool _initialize = false;
+  static final _uuid = const Uuid(); // NEW: For generating event IDs
 
   static Future<void> init() async {
     if (_initialize) return;
@@ -12,6 +15,7 @@ class DatabaseService {
     await Hive.initFlutter();
     _profileBox = await Hive.openBox('profile');
     _progressBox = await Hive.openBox('progress');
+    _eventsBox = await Hive.openBox('events'); // NEW
     _initialize = true;
 
     print("DatabaseService Initialzed Successfully");
@@ -19,7 +23,7 @@ class DatabaseService {
 
   static Future<void> saveProfile(StudentProfile profile) async {
     await _profileBox.put(profile.id, profile.toJson());
-    print('✅ Profile saved: ${profile.name}');
+    print('✅ Database initialized. Boxes: profiles, progress, events');
   }
 
   // Get Single Profile by ID
@@ -73,7 +77,7 @@ class DatabaseService {
   static Future<void> saveProgress({
     required String studentId,
     required String lessonId,
-    required String status, // 'completed', 'in_progress'
+    required String status,
     int? quizScore,
   }) async {
     final key = '${studentId}_$lessonId';
@@ -85,6 +89,14 @@ class DatabaseService {
       'lastUpdated': DateTime.now().toIso8601String(),
     });
     print('📝 Progress saved: $lessonId -> $status (Score: $quizScore)');
+
+    // NEW: Also queue a sync event
+    await addSyncEvent(
+      studentId: studentId,
+      type: status == 'completed' ? 'lesson_completed' : 'quiz_submitted',
+      lessonId: lessonId,
+      payload: {'status': status, 'quizScore': quizScore},
+    );
   }
 
   // Get progress for a specific lesson
@@ -153,5 +165,72 @@ class DatabaseService {
       print('  - ${p['lessonId']}: ${p['status']} (Score: ${p['quizScore']})');
     }
     print('  Total completed: ${getCompletedLessonsCount(studentId)}');
+  }
+
+  // ==========================================
+  // SYNC OUTBOX (NEW)
+  // ==========================================
+
+  // Add an event to the sync queue
+  static Future<void> addSyncEvent({
+    required String studentId,
+    required String type,
+    required String lessonId,
+    Map<String, dynamic>? payload,
+  }) async {
+    final eventId = _uuid.v4();
+    await _eventsBox.put(eventId, {
+      'id': eventId,
+      'studentId': studentId,
+      'type': type,
+      'lessonId': lessonId,
+      'payload': payload ?? {},
+      'createdAt': DateTime.now().toIso8601String(),
+      'synced': false,
+    });
+    print('📤 Event queued: $type - $lessonId');
+  }
+
+  // Get all unsynced events
+  static List<Map<String, dynamic>> getUnsyncedEvents() {
+    final events = <Map<String, dynamic>>[];
+    for (final data in _eventsBox.values) {
+      final event = Map<String, dynamic>.from(data);
+      if (event['synced'] == false) {
+        events.add(event);
+      }
+    }
+    // Sort by creation time (oldest first)
+    events.sort(
+      (a, b) => (a['createdAt'] as String).compareTo(b['createdAt'] as String),
+    );
+    return events;
+  }
+
+  // Count unsynced events
+  static int getUnsyncedCount() {
+    int count = 0;
+    for (final data in _eventsBox.values) {
+      if (data['synced'] == false) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  // Mark a single event as synced
+  static Future<void> markEventAsSynced(String eventId) async {
+    final event = _eventsBox.get(eventId);
+    if (event != null) {
+      event['synced'] = true;
+      await _eventsBox.put(eventId, event);
+    }
+  }
+
+  // Debug: Print sync status
+  static void debugPrintSyncStatus() {
+    final unsynced = getUnsyncedCount();
+    final total = _eventsBox.length;
+    print('🔄 Sync Status: $unsynced pending, $total total events');
   }
 }

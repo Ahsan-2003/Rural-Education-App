@@ -354,10 +354,10 @@ class _QuizScreenState extends State<QuizScreen> {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: answeredCount / _totalQuestions,
-                    minHeight: 8,
+                    minHeight: 10,
                     backgroundColor: Colors.grey.shade300,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Colors.green,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      allAnswered ? Colors.green : Colors.orange,
                     ),
                   ),
                 ),

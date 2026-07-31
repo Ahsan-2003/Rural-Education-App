@@ -10,8 +10,7 @@ void main() async {
   // Initialize Supabase
   await Supabase.initialize(
     url: 'https://hftjoljlsrneyrmiwgyc.supabase.co',
-    publishableKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmdGpvbGpsc3JuZXlybWl3Z3ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5Njk2ODcsImV4cCI6MjEwMDU0NTY4N30.0iIVhiLezLs_ZW8qwbgbFe3fP2NRmxCNJ9uBvVVodw4',
+    publishableKey: 'sb_publishable_xWUQd4ybjupX5oOsc53rKA_azESq6et',
   );
 
   // Initialize local database

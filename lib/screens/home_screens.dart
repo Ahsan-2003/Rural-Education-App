@@ -4,6 +4,7 @@ import 'package:rural_education_app/screens/existing_screens.dart';
 import 'package:rural_education_app/screens/lesson_list_screen.dart';
 import 'package:rural_education_app/services/content_service.dart';
 import 'package:rural_education_app/services/database_service.dart';
+import 'package:rural_education_app/services/sync_service.dart'; // NEW
 
 class HomeScreens extends StatefulWidget {
   final StudentProfile profile;
@@ -18,29 +19,76 @@ class _HomeScreensState extends State<HomeScreens> {
   late final ContentService _contentService;
   int _completedLessons = 0;
   int _totalLessons = 0;
+  bool _isOnline = false; // NEW
+  bool _isSyncing = false; // NEW
+  int _unsyncedCount = 0; // NEW
 
   @override
   void initState() {
     super.initState();
     _contentService = ContentService();
     _loadProgress();
+    _checkConnectivity(); // NEW
     print('🏠 HomeScreens initialized for ${widget.profile.name}');
   }
 
-  // NEW: Load progress from database
+  // NEW: Check if online
+  Future<void> _checkConnectivity() async {
+    final online = await SyncService.isOnline();
+    setState(() {
+      _isOnline = online;
+    });
+
+    // Auto-sync if online
+    if (online) {
+      _syncData();
+    }
+  }
+
   void _loadProgress() {
     final lessons = _contentService.getLessons();
     _totalLessons = lessons.length;
     _completedLessons = DatabaseService.getCompletedLessonsCount(
       widget.profile.id,
     );
+    _unsyncedCount = DatabaseService.getUnsyncedCount(); // NEW
+  }
 
-    print('📊 Progress: $_completedLessons/$_totalLessons lessons completed');
-    DatabaseService.debugPrintProgress(widget.profile.id);
+  // NEW: Manual sync
+  Future<void> _syncData() async {
+    if (_isSyncing) return;
+
+    setState(() => _isSyncing = true);
+
+    final result = await SyncService.syncAll(widget.profile.id);
+
+    setState(() {
+      _isSyncing = false;
+      _unsyncedCount = DatabaseService.getUnsyncedCount();
+    });
+
+    if (mounted) {
+      if (result['error'] != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('⚠️ ${result['error']}'),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } else if (result['events_synced'] > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ Synced ${result['events_synced']} events!'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   void _logout() {
-    print('🚪 Logging out from HomeScreens');
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const ExistingScreens()),
@@ -49,22 +97,19 @@ class _HomeScreensState extends State<HomeScreens> {
 
   void _startLearning() {
     final lessons = _contentService.getLessons();
-    print('📚 Starting learning with ${lessons.length} lessons');
 
-    // Navigate to lesson list and refresh progress when coming back
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => LessonListScreen(
           studentName: widget.profile.name,
           classCode: widget.profile.classCode,
-          studentId: widget.profile.id, // NEW: Pass student ID
+          studentId: widget.profile.id,
           onLogout: _logout,
           lessons: lessons,
         ),
       ),
     ).then((_) {
-      // Refresh progress when returning from lessons
       _loadProgress();
       setState(() {});
     });
@@ -83,6 +128,49 @@ class _HomeScreensState extends State<HomeScreens> {
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
         actions: [
+          // NEW: Sync button
+          Stack(
+            children: [
+              IconButton(
+                icon: _isSyncing
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Icon(
+                        _isOnline ? Icons.cloud_done : Icons.cloud_off,
+                        color: Colors.white,
+                      ),
+                onPressed: _isSyncing ? null : _syncData,
+                tooltip: _isOnline ? 'Sync Now' : 'Offline',
+              ),
+              // NEW: Unsynced badge
+              if (_unsyncedCount > 0)
+                Positioned(
+                  right: 6,
+                  top: 6,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '$_unsyncedCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _logout,
@@ -186,10 +274,9 @@ class _HomeScreensState extends State<HomeScreens> {
                       ),
                       const SizedBox(height: 16),
 
-                      // NEW: Progress Bar
+                      // Progress Bar
                       Column(
                         children: [
-                          // Progress text
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -203,7 +290,6 @@ class _HomeScreensState extends State<HomeScreens> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          // Progress bar
                           Container(
                             height: 8,
                             decoration: BoxDecoration(
@@ -243,14 +329,9 @@ class _HomeScreensState extends State<HomeScreens> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Start/Continue Learning Button
                   ElevatedButton.icon(
                     onPressed: _startLearning,
-                    icon: Icon(
-                      _completedLessons > 0
-                          ? Icons.play_arrow
-                          : Icons.play_arrow,
-                    ),
+                    icon: const Icon(Icons.play_arrow),
                     label: Text(
                       _completedLessons > 0
                           ? 'Continue Learning'
@@ -269,8 +350,6 @@ class _HomeScreensState extends State<HomeScreens> {
                     ),
                   ),
                   const SizedBox(width: 12),
-
-                  // Switch Profile Button
                   OutlinedButton.icon(
                     onPressed: _logout,
                     icon: const Icon(Icons.switch_account),
@@ -287,6 +366,34 @@ class _HomeScreensState extends State<HomeScreens> {
                     ),
                   ),
                 ],
+              ),
+
+              // NEW: Sync status text
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTap: _isOnline ? _syncData : null,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _isOnline ? Icons.cloud_done : Icons.cloud_off,
+                      size: 16,
+                      color: _isOnline ? Colors.green : Colors.orange,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      _isOnline
+                          ? (_unsyncedCount > 0
+                                ? '$_unsyncedCount pending - Tap to sync'
+                                : 'All data synced ✅')
+                          : 'Offline mode 📴',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: _isOnline ? Colors.green : Colors.orange,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
