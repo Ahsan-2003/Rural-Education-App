@@ -25,7 +25,7 @@ class _QuizScreenState extends State<QuizScreen> {
   int? _score;
   int _totalQuestions = 0;
   bool _submitted = false;
-  int _currentQuestionIndex = 0;
+  // int _currentQuestionIndex = 0;
 
   @override
   void initState() {
@@ -104,9 +104,9 @@ class _QuizScreenState extends State<QuizScreen> {
 
   // Build individual question widget
   Widget _buildQuestion(Question question, int index) {
-    final isAnswered = _selectedAnswers.containsKey(question.id);
+    // final isAnswered = _selectedAnswers.containsKey(question.id);
     final isCorrect = _submitted && _isAnswerCorrect(question);
-    final isWrong = _submitted && !_isAnswerCorrect(question) && isAnswered;
+    // final isWrong = _submitted && !_isAnswerCorrect(question) && isAnswered;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),

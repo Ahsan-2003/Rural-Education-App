@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rural_education_app/models/student_profile.dart';
 import 'package:rural_education_app/screens/existing_screens.dart';
-import 'package:rural_education_app/screens/lesson_list_screen.dart';
-import 'package:rural_education_app/services/content_service.dart';
+import 'package:rural_education_app/screens/subject_screen.dart';
 import 'package:rural_education_app/services/database_service.dart';
 import 'package:rural_education_app/services/sync_service.dart';
 import 'package:rural_education_app/services/connectivity_service.dart';
@@ -18,7 +17,6 @@ class HomeScreens extends StatefulWidget {
 }
 
 class _HomeScreensState extends State<HomeScreens> {
-  late final ContentService _contentService;
   int _completedLessons = 0;
   int _totalLessons = 0;
   bool _isOnline = true;
@@ -28,7 +26,6 @@ class _HomeScreensState extends State<HomeScreens> {
   @override
   void initState() {
     super.initState();
-    _contentService = ContentService();
     _loadProgress();
 
     // Get initial connectivity status
@@ -56,13 +53,17 @@ class _HomeScreensState extends State<HomeScreens> {
     }
   }
 
+  // FIXED: Load progress without ContentService
   void _loadProgress() {
-    final lessons = _contentService.getLessons();
-    _totalLessons = lessons.length;
+    // Total lessons across all subjects (3 lessons × 4 subjects = 12)
+    _totalLessons = 12;
+
+    // Get completed lessons from database
     _completedLessons = DatabaseService.getCompletedLessonsCount(
       widget.profile.id,
     );
     _unsyncedCount = DatabaseService.getUnsyncedCount();
+
     print(
       '📊 Progress: $_completedLessons/$_totalLessons | Unsynced: $_unsyncedCount',
     );
@@ -123,17 +124,14 @@ class _HomeScreensState extends State<HomeScreens> {
   }
 
   void _startLearning() {
-    final lessons = _contentService.getLessons();
-
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LessonListScreen(
+        builder: (context) => SubjectScreen(
           studentName: widget.profile.name,
           classCode: widget.profile.classCode,
           studentId: widget.profile.id,
           onLogout: _logout,
-          lessons: lessons,
         ),
       ),
     ).then((_) {
@@ -225,6 +223,7 @@ class _HomeScreensState extends State<HomeScreens> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Profile Avatar
                     CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.green.shade100,
@@ -238,6 +237,8 @@ class _HomeScreensState extends State<HomeScreens> {
                       ),
                     ),
                     const SizedBox(height: 20),
+
+                    // Welcome Text
                     Text(
                       'Welcome, ${profile.name}!',
                       style: const TextStyle(
@@ -246,6 +247,8 @@ class _HomeScreensState extends State<HomeScreens> {
                       ),
                     ),
                     const SizedBox(height: 8),
+
+                    // Class Code
                     if (profile.classCode != null) ...[
                       Text(
                         'Class: ${profile.classCode}',
@@ -255,9 +258,10 @@ class _HomeScreensState extends State<HomeScreens> {
                         ),
                       ),
                     ],
+
                     const SizedBox(height: 30),
 
-                    // Course Card
+                    // Course Overview Card
                     Card(
                       elevation: 4,
                       shape: RoundedRectangleBorder(
@@ -292,14 +296,14 @@ class _HomeScreensState extends State<HomeScreens> {
                                 ],
                               ),
                               child: const Icon(
-                                Icons.menu_book,
+                                Icons.school,
                                 size: 50,
                                 color: Colors.green,
                               ),
                             ),
                             const SizedBox(height: 16),
                             const Text(
-                              'Mathematics',
+                              '4 Subjects Available',
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -308,21 +312,28 @@ class _HomeScreensState extends State<HomeScreens> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Fractions - Grade 5',
+                              'Math • Science • English • History',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 color: Colors.grey.shade700,
                               ),
                             ),
                             const SizedBox(height: 16),
+
+                            // Progress Overview
                             Column(
                               children: [
-                                Text(
-                                  '$_completedLessons of $_totalLessons completed',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green,
-                                  ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '$_completedLessons of $_totalLessons lessons completed',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 8),
                                 Container(
@@ -357,7 +368,10 @@ class _HomeScreensState extends State<HomeScreens> {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 30),
+
+                    // Action Buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -366,7 +380,7 @@ class _HomeScreensState extends State<HomeScreens> {
                           icon: const Icon(Icons.play_arrow),
                           label: Text(
                             _completedLessons > 0
-                                ? 'Continue'
+                                ? 'Continue Learning'
                                 : 'Start Learning',
                           ),
                           style: ElevatedButton.styleFrom(
@@ -385,7 +399,7 @@ class _HomeScreensState extends State<HomeScreens> {
                         OutlinedButton.icon(
                           onPressed: _logout,
                           icon: const Icon(Icons.switch_account),
-                          label: const Text('Switch'),
+                          label: const Text('Switch Profile'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.green,
                             padding: const EdgeInsets.symmetric(

@@ -9,14 +9,20 @@ class LessonListScreen extends StatefulWidget {
   final String studentId; // NEW: Added studentId
   final VoidCallback onLogout;
   final List<Lesson> lessons;
+  // Add these parameters to the class:
+  final String subjectName; // NEW
+  final String subjectIcon; // NEW
 
+  // Update constructor:
   const LessonListScreen({
     super.key,
     required this.studentName,
     required this.classCode,
-    required this.studentId, // NEW
+    required this.studentId,
     required this.onLogout,
     required this.lessons,
+    this.subjectName = 'Mathematics', // Default
+    this.subjectIcon = '📐', // Default
   });
 
   @override
@@ -60,7 +66,7 @@ class _LessonListScreenState extends State<LessonListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome, ${widget.studentName}! 👋'),
+        title: Text('Welcome, ${widget.studentName.toUpperCase()}! 👋'),
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
         actions: [
@@ -124,8 +130,8 @@ class _LessonListScreenState extends State<LessonListScreen> {
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    '📐 MATHEMATICS',
+                  child: Text(
+                    '📐 ${widget.studentName}',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -137,8 +143,8 @@ class _LessonListScreenState extends State<LessonListScreen> {
                 const SizedBox(height: 12),
 
                 // Title
-                const Text(
-                  'Fractions - Grade 5',
+                Text(
+                  '${widget.subjectName} - Grade 5',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 26,
