@@ -1,0 +1,50 @@
+{
+  "subjectId": "science",
+  "subjectName": "Science",
+  "icon": "🔬",
+  "color": "green",
+  "version": 1,
+  "description": "Plants, Animals & Human Body",
+  "lessons": [
+    {
+      "id": "sci_1",
+      "title": "Parts of a Plant",
+      "order": 1,
+      "content": "# Parts of a Plant\n\n## Main Parts\n\n### 1. Roots 🌱\n- Grow underground\n- Absorb water and minerals\n- Anchor the plant\n\n### 2. Stem 🌿\n- Supports the plant\n- Transports water and food\n- Holds leaves and flowers\n\n### 3. Leaves 🍃\n- Make food (photosynthesis)\n- Breathe (exchange gases)\n- Green due to chlorophyll\n\n### 4. Flowers 🌸\n- Reproductive part\n- Produce fruits and seeds\n- Attract pollinators\n\n### 5. Fruits 🍎\n- Protect seeds\n- Help in seed dispersal\n\n## Fun Fact\nThe largest flower is Rafflesia - 3 feet wide!\n\n**Plants are amazing!** 🌿",
+      "quiz": {
+        "id": "sci_q1",
+        "questions": [
+          {"id": "sq1", "type": "mcq", "text": "Which part makes food?", "options": ["Roots", "Stem", "Leaves", "Flowers"], "correctAnswer": "Leaves"},
+          {"id": "sq2", "type": "mcq", "text": "Roots absorb?", "options": ["Sunlight", "Water", "Air", "Food"], "correctAnswer": "Water"},
+          {"id": "sq3", "type": "true_false", "text": "Flowers produce fruits.", "options": ["True", "False"], "correctAnswer": "True"}
+        ]
+      }
+    },
+    {
+      "id": "sci_2",
+      "title": "Animals Classification",
+      "order": 2,
+      "content": "# Animals Classification\n\n## Types of Animals\n\n### 1. Mammals 🐄\n- Give birth to babies\n- Feed milk to young\n- Have hair or fur\n- Examples: Cow, Dog, Human\n\n### 2. Birds 🐦\n- Have feathers and wings\n- Lay eggs\n- Have beaks\n- Examples: Eagle, Sparrow, Penguin\n\n### 3. Reptiles 🦎\n- Cold-blooded\n- Lay eggs\n- Have scales\n- Examples: Snake, Lizard, Crocodile\n\n### 4. Amphibians 🐸\n- Live on land and water\n- Lay eggs in water\n- Examples: Frog, Salamander\n\n### 5. Fish 🐟\n- Live in water\n- Have gills to breathe\n- Examples: Shark, Goldfish\n\n**Nature is diverse!** 🌍",
+      "quiz": {
+        "id": "sci_q2",
+        "questions": [
+          {"id": "sq4", "type": "mcq", "text": "Which animals feed milk?", "options": ["Birds", "Mammals", "Reptiles", "Fish"], "correctAnswer": "Mammals"},
+          {"id": "sq5", "type": "true_false", "text": "Frogs are amphibians.", "options": ["True", "False"], "correctAnswer": "True"}
+        ]
+      }
+    },
+    {
+      "id": "sci_3",
+      "title": "Human Body Systems",
+      "order": 3,
+      "content": "# Human Body Systems\n\n## Major Systems\n\n### 1. Digestive System 🍔\n- Breaks down food\n- Absorbs nutrients\n- Organs: Stomach, Intestines\n\n### 2. Respiratory System 🫁\n- Helps us breathe\n- Takes in oxygen\n- Organs: Lungs, Nose\n\n### 3. Circulatory System ❤️\n- Pumps blood\n- Transports oxygen\n- Organs: Heart, Blood vessels\n\n### 4. Nervous System 🧠\n- Controls body\n- Sends signals\n- Organs: Brain, Nerves\n\n## Fun Fact\nYour heart beats 100,000 times per day!\n\n**Your body is incredible!** 💪",
+      "quiz": {
+        "id": "sci_q3",
+        "questions": [
+          {"id": "sq6", "type": "mcq", "text": "Which organ pumps blood?", "options": ["Brain", "Lungs", "Heart", "Stomach"], "correctAnswer": "Heart"},
+          {"id": "sq7", "type": "true_false", "text": "Brain is part of nervous system.", "options": ["True", "False"], "correctAnswer": "True"}
+        ]
+      }
+    }
+  ]
+}

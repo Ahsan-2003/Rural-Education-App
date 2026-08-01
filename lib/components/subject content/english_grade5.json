@@ -1,0 +1,49 @@
+{
+  "subjectId": "english",
+  "subjectName": "English",
+  "icon": "📖",
+  "color": "purple",
+  "version": 1,
+  "description": "Nouns, Verbs & Sentences",
+  "lessons": [
+    {
+      "id": "eng_1",
+      "title": "Nouns - Naming Words",
+      "order": 1,
+      "content": "# Nouns - Naming Words\n\n## What is a Noun?\nA noun is a word that names a **person, place, thing, or idea**.\n\n## Types of Nouns\n\n### 1. Proper Nouns\n- Names specific people/places\n- Always start with CAPITAL letter\n- Examples: Ravi, Delhi, India, Ganga\n\n### 2. Common Nouns\n- General names\n- Examples: boy, city, river, book\n\n### 3. Collective Nouns\n- Names a group\n- Examples: team, family, class, herd\n\n### 4. Abstract Nouns\n- Names ideas/feelings\n- Examples: love, happiness, courage\n\n## Practice\nIdentify nouns: \"Ravi went to school.\"\n- Ravi (Proper Noun)\n- School (Common Noun)\n\n**Nouns are everywhere!** 📝",
+      "quiz": {
+        "id": "eng_q1",
+        "questions": [
+          {"id": "eq1", "type": "mcq", "text": "\"Delhi\" is a?", "options": ["Common", "Proper", "Collective", "Abstract"], "correctAnswer": "Proper"},
+          {"id": "eq2", "type": "mcq", "text": "\"Happiness\" is a?", "options": ["Proper", "Common", "Collective", "Abstract"], "correctAnswer": "Abstract"}
+        ]
+      }
+    },
+    {
+      "id": "eng_2",
+      "title": "Verbs - Action Words",
+      "order": 2,
+      "content": "# Verbs - Action Words\n\n## What is a Verb?\nA verb shows **action** or **state of being**.\n\n## Types of Verbs\n\n### 1. Action Verbs\n- Show physical/mental action\n- Examples: run, eat, think, write\n\n### 2. Helping Verbs\n- Help main verbs\n- Examples: is, am, are, was, were\n- \"She IS reading\"\n\n### 3. Linking Verbs\n- Connect subject to description\n- Examples: is, seems, becomes\n- \"He IS happy\"\n\n## Examples in Sentences\n- Ravi **runs** fast.\n- Priya **is** a good student.\n- They **are** playing.\n\n**Verbs bring sentences to life!** ⚡",
+      "quiz": {
+        "id": "eng_q2",
+        "questions": [
+          {"id": "eq3", "type": "mcq", "text": "Which is an action verb?", "options": ["is", "am", "run", "were"], "correctAnswer": "run"},
+          {"id": "eq4", "type": "true_false", "text": "\"is\" is a helping verb.", "options": ["True", "False"], "correctAnswer": "True"}
+        ]
+      }
+    },
+    {
+      "id": "eng_3",
+      "title": "Simple Sentences",
+      "order": 3,
+      "content": "# Simple Sentences\n\n## What is a Sentence?\nA sentence is a group of words that makes **complete sense**.\n\n## Parts of a Sentence\n\n### Subject\n- Who or what the sentence is about\n- Example: **Ravi** reads a book.\n\n### Predicate\n- What the subject does\n- Example: Ravi **reads a book**.\n\n## Types of Sentences\n\n### 1. Declarative (Statement)\n- Tells something\n- Ends with period (.)\n- \"The sun rises in the east.\"\n\n### 2. Interrogative (Question)\n- Asks something\n- Ends with question mark (?)\n- \"What is your name?\"\n\n### 3. Imperative (Command)\n- Gives order/request\n- \"Please sit down.\"\n\n### 4. Exclamatory\n- Shows strong feeling\n- Ends with (!)\n- \"What a beautiful day!\"\n\n**Practice writing sentences!** ✍️",
+      "quiz": {
+        "id": "eng_q3",
+        "questions": [
+          {"id": "eq5", "type": "mcq", "text": "\"What is your name?\" is?", "options": ["Declarative", "Interrogative", "Imperative", "Exclamatory"], "correctAnswer": "Interrogative"},
+          {"id": "eq6", "type": "true_false", "text": "A sentence must have subject and predicate.", "options": ["True", "False"], "correctAnswer": "True"}
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "subjectId": "history",
+  "subjectName": "History",
+  "icon": "🏛️",
+  "color": "orange",
+  "version": 1,
+  "description": "Ancient India, Freedom & Heritage",
+  "lessons": [
+    {
+      "id": "his_1",
+      "title": "Ancient India - Indus Valley",
+      "order": 1,
+      "content": "# Ancient India - Indus Valley\n\n## Indus Valley Civilization (3300-1300 BCE)\n\nOne of the **oldest civilizations** in the world!\n\n## Major Cities\n\n### 1. Harappa (Punjab, Pakistan)\n- Discovered in 1921\n- Well-planned streets\n- Great Granary\n\n### 2. Mohenjo-Daro (Sindh, Pakistan)\n- Discovered in 1922\n- Great Bath\n- Advanced drainage system\n\n## Achievements\n- 🏙️ Town planning with grid system\n- 💧 Underground drainage\n- 📝 Indus script (still undeciphered)\n- ⚖️ Standard weights and measures\n- 🌾 Agriculture: wheat, barley, cotton\n\n## Daily Life\n- People were farmers and traders\n- Used bronze tools\n- Made pottery and jewelry\n- Traded with Mesopotamia\n\n**Our ancestors were brilliant!** 🏛️",
+      "quiz": {
+        "id": "his_q1",
+        "questions": [
+          {"id": "hq1", "type": "mcq", "text": "Great Bath was in?", "options": ["Harappa", "Mohenjo-Daro", "Delhi", "Agra"], "correctAnswer": "Mohenjo-Daro"},
+          {"id": "hq2", "type": "true_false", "text": "Indus Valley had drainage system.", "options": ["True", "False"], "correctAnswer": "True"}
+        ]
+      }
+    },
+    {
+      "id": "his_2",
+      "title": "Freedom Struggle",
+      "order": 2,
+      "content": "# Indian Freedom Struggle\n\n## Key Events\n\n### 1857 - First War of Independence\n- Also called Sepoy Mutiny\n- Started in Meerut\n- Mangal Pandey played key role\n\n### 1885 - Indian National Congress\n- Founded by A.O. Hume\n- First session in Bombay\n\n### 1919 - Jallianwala Bagh\n- Massacre in Amritsar\n- General Dyer ordered firing\n\n### 1930 - Dandi March\n- Led by Mahatma Gandhi\n- Salt Satyagraha\n- 24 days, 390 km march\n\n### 1942 - Quit India Movement\n- \"Do or Die\" slogan\n- Mass protests across India\n\n### 1947 - Independence\n- August 15, 1947\n- India becomes free! 🇮🇳\n\n## Great Leaders\n- Mahatma Gandhi\n- Jawaharlal Nehru\n- Sardar Patel\n- Bhagat Singh\n\n**Jai Hind!** 🇮🇳",
+      "quiz": {
+        "id": "his_q2",
+        "questions": [
+          {"id": "hq3", "type": "mcq", "text": "Dandi March was in?", "options": ["1919", "1930", "1942", "1947"], "correctAnswer": "1930"},
+          {"id": "hq4", "type": "true_false", "text": "India got freedom in 1947.", "options": ["True", "False"], "correctAnswer": "True"}
+        ]
+      }
+    },
+    {
+      "id": "his_3",
+      "title": "Indian Heritage & Culture",
+      "order": 3,
+      "content": "# Indian Heritage & Culture\n\n## Diversity of India\n\nIndia is known for **Unity in Diversity**!\n\n## Festivals\n\n### National Festivals\n- 🇮🇳 Republic Day (Jan 26)\n- 🇮🇳 Independence Day (Aug 15)\n- 🇮🇳 Gandhi Jayanti (Oct 2)\n\n### Religious Festivals\n- 🪔 Diwali - Festival of Lights\n- 🎨 Holi - Festival of Colors\n- 🕌 Eid - Islamic festival\n- 🎄 Christmas - Christian festival\n\n## Classical Dances\n- Bharatanatyam (Tamil Nadu)\n- Kathak (North India)\n- Kathakali (Kerala)\n- Odissi (Odisha)\n\n## Monuments\n- 🏰 Taj Mahal (Agra)\n- 🛕 Qutub Minar (Delhi)\n- 🏯 Red Fort (Delhi)\n- 🕉️ Konark Temple (Odisha)\n\n## Food Diversity\n- North: Roti, Dal, Paneer\n- South: Dosa, Idli, Sambar\n- East: Fish curry, Rice\n- West: Dhokla, Vada Pav\n\n**Proud to be Indian!** 🇮🇳",
+      "quiz": {
+        "id": "his_q3",
+        "questions": [
+          {"id": "hq5", "type": "mcq", "text": "Taj Mahal is in?", "options": ["Delhi", "Agra", "Jaipur", "Mumbai"], "correctAnswer": "Agra"},
+          {"id": "hq6", "type": "true_false", "text": "Bharatanatyam is from Tamil Nadu.", "options": ["True", "False"], "correctAnswer": "True"}
+        ]
+      }
+    }
+  ]
+}

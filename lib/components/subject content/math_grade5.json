@@ -1,0 +1,50 @@
+{
+  "subjectId": "math",
+  "subjectName": "Mathematics",
+  "icon": "📐",
+  "color": "blue",
+  "version": 1,
+  "description": "Fractions, Addition & Daily Life",
+  "lessons": [
+    {
+      "id": "math_1",
+      "title": "Introduction to Fractions",
+      "order": 1,
+      "content": "# Introduction to Fractions\n\n## What is a Fraction?\n\nA **fraction** represents a part of a whole.\n\n### Parts of a Fraction\n- **Numerator**: Top number (parts we have)\n- **Denominator**: Bottom number (total parts)\n\n### Example\nA pizza cut into 4 slices:\n- Eat 1 slice → 1/4 eaten\n- 3 slices remain → 3/4 remaining\n\n## Types of Fractions\n\n### Proper Fractions\nNumerator < Denominator (e.g., 1/2, 2/3, 3/4)\n\n### Improper Fractions\nNumerator ≥ Denominator (e.g., 5/3, 7/4)\n\n### Mixed Numbers\nWhole number + fraction (e.g., 1½, 2¾)\n\n## Equivalent Fractions\n1/2 = 2/4 = 4/8 = 8/16\n\n**Great job!** Now you understand fractions!",
+      "quiz": {
+        "id": "math_q1",
+        "questions": [
+          {"id": "mq1", "type": "mcq", "text": "What is the top number called?", "options": ["Denominator", "Numerator", "Whole", "Divisor"], "correctAnswer": "Numerator"},
+          {"id": "mq2", "type": "mcq", "text": "Which is an improper fraction?", "options": ["1/2", "3/4", "5/3", "2/5"], "correctAnswer": "5/3"},
+          {"id": "mq3", "type": "true_false", "text": "1/2 and 2/4 are equivalent.", "options": ["True", "False"], "correctAnswer": "True"}
+        ]
+      }
+    },
+    {
+      "id": "math_2",
+      "title": "Adding Fractions",
+      "order": 2,
+      "content": "# Adding Fractions\n\n## Same Denominator\nJust add numerators, keep denominator.\nExample: 1/5 + 2/5 = 3/5\n\n## Different Denominators\n1. Find LCD\n2. Convert fractions\n3. Add numerators\n4. Simplify\n\nExample: 1/3 + 1/4\nLCD = 12\n1/3 = 4/12, 1/4 = 3/12\n4/12 + 3/12 = 7/12\n\n**Practice makes perfect!**",
+      "quiz": {
+        "id": "math_q2",
+        "questions": [
+          {"id": "mq4", "type": "mcq", "text": "What is 2/7 + 3/7?", "options": ["5/7", "5/14", "6/7", "1/7"], "correctAnswer": "5/7"},
+          {"id": "mq5", "type": "mcq", "text": "LCD of 1/2 and 1/3?", "options": ["2", "3", "5", "6"], "correctAnswer": "6"}
+        ]
+      }
+    },
+    {
+      "id": "math_3",
+      "title": "Fractions in Daily Life",
+      "order": 3,
+      "content": "# Fractions in Daily Life\n\n## Cooking\n- ½ cup sugar\n- ¼ teaspoon salt\n- ¾ cup milk\n\n## Time\n- ½ hour = 30 minutes\n- ¼ hour = 15 minutes\n\n## Shopping\n- 50% off = ½ price\n- 25% off = ¼ off\n\nFractions are everywhere! 🎉",
+      "quiz": {
+        "id": "math_q3",
+        "questions": [
+          {"id": "mq6", "type": "mcq", "text": "½ hour = ? minutes", "options": ["15", "30", "45", "60"], "correctAnswer": "30"},
+          {"id": "mq7", "type": "true_false", "text": "50% discount means half price.", "options": ["True", "False"], "correctAnswer": "True"}
+        ]
+      }
+    }
+  ]
+}
