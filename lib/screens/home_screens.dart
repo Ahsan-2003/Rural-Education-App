@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:rural_education_app/models/student_profile.dart';
+import 'package:rural_education_app/screens/badges_screen.dart';
 import 'package:rural_education_app/screens/existing_screens.dart';
 import 'package:rural_education_app/screens/subject_screen.dart';
 import 'package:rural_education_app/services/database_service.dart';
+import 'package:rural_education_app/services/streak_service.dart';
 import 'package:rural_education_app/services/sync_service.dart';
 import 'package:rural_education_app/services/connectivity_service.dart';
 import 'package:rural_education_app/widgets/connectivity_banner.dart';
@@ -213,6 +215,71 @@ class _HomeScreensState extends State<HomeScreens> {
             isOnline: _isOnline,
             unsyncedCount: _unsyncedCount,
             onSyncTap: _syncData,
+          ),
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            color: Colors.orange.shade50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                // Streak
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            BadgesScreen(studentId: widget.profile.id),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      const Text('🔥', style: TextStyle(fontSize: 20)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${StreakService.getCurrentStreak(widget.profile.id)} Day Streak',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                // XP
+                Row(
+                  children: [
+                    const Text('⭐', style: TextStyle(fontSize: 20)),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${StreakService.getTotalXP(widget.profile.id)} XP',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                // Badges
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            BadgesScreen(studentId: widget.profile.id),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      const Text('🏆', style: TextStyle(fontSize: 20)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${StreakService.getEarnedBadgeIds(widget.profile.id).length} Badges',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Main content

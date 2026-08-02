@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rural_education_app/models/lesson.dart';
 import 'package:rural_education_app/services/database_service.dart';
+import 'package:rural_education_app/services/streak_service.dart';
+import 'package:rural_education_app/widgets/badge_earned_dialog.dart';
 
 class QuizScreen extends StatefulWidget {
   final Lesson lesson;
@@ -58,6 +60,8 @@ class _QuizScreenState extends State<QuizScreen> {
 
     print('✅ Quiz submitted: Score $correct/$_totalQuestions');
 
+    _checkForBadges(correct);
+
     // Show result in snackbar
     final percentage = (correct / _totalQuestions) * 100;
     String message;
@@ -81,6 +85,49 @@ class _QuizScreenState extends State<QuizScreen> {
         duration: const Duration(seconds: 3),
       ),
     );
+  }
+
+  void _checkForBadges(int score) async {
+    final totalLessons = DatabaseService.getCompletedLessonsCount(
+      widget.studentId,
+    );
+    final allProgress = DatabaseService.getAllProgress(widget.studentId);
+
+    final totalQuizzes = allProgress
+        .where((p) => p['quizScore'] != null)
+        .length;
+    final perfectScores = allProgress
+        .where(
+          (p) =>
+              p['quizScore'] != null &&
+              p['quizScore'] == widget.quiz.questions.length,
+        )
+        .length;
+
+    final completedSubjects = <String>{};
+    for (final p in allProgress) {
+      final lessonId = p['lessonId'] as String;
+      if (lessonId.startsWith('math_')) completedSubjects.add('math');
+      if (lessonId.startsWith('sci_')) completedSubjects.add('science');
+      if (lessonId.startsWith('eng_')) completedSubjects.add('english');
+      if (lessonId.startsWith('his_')) completedSubjects.add('history');
+    }
+
+    final newBadges = await StreakService.checkAndAwardBadges(
+      studentId: widget.studentId, // NEW
+      totalLessonsCompleted: totalLessons,
+      totalQuizzesCompleted: totalQuizzes,
+      perfectScores:
+          perfectScores + (score == widget.quiz.questions.length ? 1 : 0),
+      currentStreak: StreakService.getCurrentStreak(
+        widget.studentId,
+      ), // UPDATED
+      completedSubjects: completedSubjects,
+    );
+
+    if (newBadges.isNotEmpty && mounted) {
+      BadgeEarnedDialog.show(context, newBadges);
+    }
   }
 
   // Get answer status for a question

@@ -4,6 +4,7 @@ import 'package:rural_education_app/screens/profile_screen.dart';
 import 'package:rural_education_app/services/connectivity_service.dart';
 import 'package:rural_education_app/services/content_cache_service.dart';
 import 'package:rural_education_app/services/database_service.dart';
+import 'package:rural_education_app/services/streak_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -22,6 +23,8 @@ void main() async {
   await ConnectivityService().init();
 
   await ContentCacheService.init(); // NEW
+
+  await StreakService.init(); // NEW
 
   runApp(const RuralEduApp());
 }

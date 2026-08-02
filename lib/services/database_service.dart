@@ -233,4 +233,142 @@ class DatabaseService {
     final total = _eventsBox.length;
     print('🔄 Sync Status: $unsynced pending, $total total events');
   }
+
+  // ==========================================
+  // ANALYTICS METHODS (NEW)
+  // ==========================================
+
+  // Get total lessons completed per subject
+  static Map<String, int> getSubjectProgress(String studentId) {
+    final subjects = {'math': 0, 'science': 0, 'english': 0, 'history': 0};
+
+    for (final key in _progressBox.keys) {
+      if (key.toString().startsWith('${studentId}_')) {
+        final data = _progressBox.get(key);
+        if (data != null && data['status'] == 'completed') {
+          final lessonId = data['lessonId'] as String;
+          if (lessonId.startsWith('math_'))
+            subjects['math'] = (subjects['math'] ?? 0) + 1;
+          if (lessonId.startsWith('sci_'))
+            subjects['science'] = (subjects['science'] ?? 0) + 1;
+          if (lessonId.startsWith('eng_'))
+            subjects['english'] = (subjects['english'] ?? 0) + 1;
+          if (lessonId.startsWith('his_'))
+            subjects['history'] = (subjects['history'] ?? 0) + 1;
+        }
+      }
+    }
+    return subjects;
+  }
+
+  // Get all quiz scores
+  static List<Map<String, dynamic>> getQuizHistory(String studentId) {
+    final quizHistory = <Map<String, dynamic>>[];
+
+    for (final key in _progressBox.keys) {
+      if (key.toString().startsWith('${studentId}_')) {
+        final data = _progressBox.get(key);
+        if (data != null && data['quizScore'] != null) {
+          quizHistory.add({
+            'lessonId': data['lessonId'],
+            'score': data['quizScore'],
+            'date': data['lastUpdated'],
+          });
+        }
+      }
+    }
+
+    // Sort by date (newest first)
+    quizHistory.sort(
+      (a, b) => (b['date'] as String).compareTo(a['date'] as String),
+    );
+    return quizHistory;
+  }
+
+  // Get average quiz score
+  static double getAverageQuizScore(String studentId) {
+    final quizHistory = getQuizHistory(studentId);
+    if (quizHistory.isEmpty) return 0.0;
+
+    int totalScore = 0;
+    int totalQuestions = 0;
+
+    for (final quiz in quizHistory) {
+      totalScore += (quiz['score'] as int);
+      totalQuestions +=
+          5; // Each quiz has 5 questions (or calculate dynamically)
+    }
+
+    return totalQuestions > 0 ? (totalScore / totalQuestions) * 100 : 0.0;
+  }
+
+  // Get total quizzes taken
+  static int getTotalQuizzesTaken(String studentId) {
+    return getQuizHistory(studentId).length;
+  }
+
+  // Get recent activity (last 10 events)
+  static List<Map<String, dynamic>> getRecentActivity(String studentId) {
+    final activity = <Map<String, dynamic>>[];
+
+    for (final key in _progressBox.keys) {
+      if (key.toString().startsWith('${studentId}_')) {
+        final data = _progressBox.get(key);
+        if (data != null) {
+          activity.add({
+            'type': data['quizScore'] != null ? 'quiz' : 'lesson',
+            'lessonId': data['lessonId'],
+            'status': data['status'],
+            'score': data['quizScore'],
+            'date': data['lastUpdated'],
+          });
+        }
+      }
+    }
+
+    // Sort by date (newest first)
+    activity.sort(
+      (a, b) => (b['date'] as String).compareTo(a['date'] as String),
+    );
+
+    // Return last 10
+    return activity.take(10).toList();
+  }
+
+  // Get lesson name from ID
+  static String getLessonName(String lessonId) {
+    final names = {
+      'math_1': 'Intro to Fractions',
+      'math_2': 'Adding Fractions',
+      'math_3': 'Fractions in Daily Life',
+      'sci_1': 'Parts of a Plant',
+      'sci_2': 'Animals Classification',
+      'sci_3': 'Human Body Systems',
+      'eng_1': 'Nouns - Naming Words',
+      'eng_2': 'Verbs - Action Words',
+      'eng_3': 'Simple Sentences',
+      'his_1': 'Indus Valley Civilization',
+      'his_2': 'Freedom Struggle',
+      'his_3': 'Indian Heritage & Culture',
+    };
+    return names[lessonId] ?? lessonId;
+  }
+
+  // Get subject name from lesson ID
+  static String getSubjectFromLessonId(String lessonId) {
+    if (lessonId.startsWith('math_')) return 'Mathematics';
+    if (lessonId.startsWith('sci_')) return 'Science';
+    if (lessonId.startsWith('eng_')) return 'English';
+    if (lessonId.startsWith('his_')) return 'History';
+    return 'Unknown';
+  }
+
+  // Get subject icon from lesson ID
+  static String getSubjectIcon(String lessonId) {
+    if (lessonId.startsWith('math_')) return '📐';
+    if (lessonId.startsWith('sci_')) return '🔬';
+    if (lessonId.startsWith('eng_')) return '📖';
+    if (lessonId.startsWith('his_')) return '🏛️';
+    return '📚';
+  }
 }
