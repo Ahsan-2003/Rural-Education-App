@@ -4,7 +4,7 @@
 class Lesson {
   final String id;
   final String title;
-  final String content; // Markdown content
+  final String content;
   final int order;
   final Quiz? quiz;
 
@@ -16,17 +16,28 @@ class Lesson {
     this.quiz,
   });
 
-  // Create from JSON (for future API loading)
+  // FIXED: Better fromJson with null safety
   factory Lesson.fromJson(Map<String, dynamic> json) {
     return Lesson(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      content: json['content'] as String,
-      order: json['order'] as int,
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? 'Untitled',
+      content: json['content'] as String? ?? '',
+      order: json['order'] as int? ?? 0,
       quiz: json['quiz'] != null
           ? Quiz.fromJson(json['quiz'] as Map<String, dynamic>)
           : null,
     );
+  }
+
+  // Convert to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'content': content,
+      'order': order,
+      'quiz': quiz?.toJson(),
+    };
   }
 
   @override
@@ -44,11 +55,17 @@ class Quiz {
 
   factory Quiz.fromJson(Map<String, dynamic> json) {
     return Quiz(
-      id: json['id'] as String,
-      questions: (json['questions'] as List)
-          .map((q) => Question.fromJson(q as Map<String, dynamic>))
-          .toList(),
+      id: json['id'] as String? ?? '',
+      questions: json['questions'] != null
+          ? (json['questions'] as List)
+                .map((q) => Question.fromJson(q as Map<String, dynamic>))
+                .toList()
+          : [],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'questions': questions.map((q) => q.toJson()).toList()};
   }
 }
 
@@ -57,7 +74,7 @@ class Quiz {
 // =============================================
 class Question {
   final String id;
-  final String type; // 'mcq' or 'true_false'
+  final String type;
   final String text;
   final List<String> options;
   final String correctAnswer;
@@ -74,12 +91,25 @@ class Question {
 
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
-      id: json['id'] as String,
-      type: json['type'] as String,
-      text: json['text'] as String,
-      options: List<String>.from(json['options'] as List),
-      correctAnswer: json['correctAnswer'] as String,
+      id: json['id'] as String? ?? '',
+      type: json['type'] as String? ?? 'mcq',
+      text: json['text'] as String? ?? '',
+      options: json['options'] != null
+          ? List<String>.from(json['options'] as List)
+          : [],
+      correctAnswer: json['correctAnswer'] as String? ?? '',
       points: json['points'] as int? ?? 1,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'type': type,
+      'text': text,
+      'options': options,
+      'correctAnswer': correctAnswer,
+      'points': points,
+    };
   }
 }

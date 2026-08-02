@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rural_education_app/screens/existing_screens.dart';
 import 'package:rural_education_app/screens/profile_screen.dart';
 import 'package:rural_education_app/services/connectivity_service.dart';
+import 'package:rural_education_app/services/content_cache_service.dart';
 import 'package:rural_education_app/services/database_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,6 +20,8 @@ void main() async {
 
   // NEW: Initialize connectivity service
   await ConnectivityService().init();
+
+  await ContentCacheService.init(); // NEW
 
   runApp(const RuralEduApp());
 }
