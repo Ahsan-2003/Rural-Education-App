@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -42,6 +43,9 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
         _loading = false;
       });
 
+      // 🔍 DIAGNOSTIC: prints exactly what event_type values exist in your DB.
+      final uniqueEventTypes = _events.map((e) => e['event_type']).toSet();
+      print('🔍 Unique event_type values found: $uniqueEventTypes');
       print(
         '📊 Dashboard loaded: ${_students.length} students, ${_events.length} events',
       );
@@ -57,29 +61,63 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   }
 
   // ==========================================
-  // FIXED: Count UNIQUE lessons per student
+  // Normalized event-type checks
+  // ==========================================
+  bool _isLessonCompletedEvent(dynamic eventType) {
+    if (eventType is! String) return false;
+    final normalized = eventType.trim().toLowerCase();
+    return normalized == 'lesson_completed' || normalized == 'lessoncompleted';
+  }
+
+  bool _isQuizSubmittedEvent(dynamic eventType) {
+    if (eventType is! String) return false;
+    final normalized = eventType.trim().toLowerCase();
+    // FIX: Include 'lesson_completed' because that's when the final quiz score is synced
+    return normalized == 'quiz_submitted' ||
+        normalized == 'quiz_completed' ||
+        normalized == 'quizsubmitted' ||
+        normalized == 'lesson_completed' ||
+        normalized == 'lessoncompleted';
+  }
+
+  Map<String, dynamic>? _parsePayload(dynamic payload) {
+    if (payload == null) return null;
+    if (payload is Map<String, dynamic>) return payload;
+    if (payload is String) {
+      try {
+        final decoded = jsonDecode(payload);
+        if (decoded is Map<String, dynamic>) return decoded;
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  // ==========================================
+  // Count UNIQUE stats per student
   // ==========================================
   int _getUniqueLessonsCompleted(String studentId) {
     final uniqueLessons = <String>{};
 
     for (final event in _events) {
       if (event['student_id'] == studentId &&
-          event['event_type'] == 'lesson_completed') {
-        uniqueLessons.add(event['lesson_id'] as String);
+          _isLessonCompletedEvent(event['event_type'])) {
+        final lessonId = event['lesson_id'] as String?;
+        if (lessonId != null) {
+          uniqueLessons.add(lessonId);
+        }
       }
     }
 
     return uniqueLessons.length;
   }
 
-  // Count unique lessons per subject
   int _getSubjectLessonsCompleted(String studentId, String prefix) {
     final uniqueLessons = <String>{};
 
     for (final event in _events) {
       final lessonId = event['lesson_id'] as String?;
       if (event['student_id'] == studentId &&
-          event['event_type'] == 'lesson_completed' &&
+          _isLessonCompletedEvent(event['event_type']) &&
           lessonId != null &&
           lessonId.startsWith(prefix)) {
         uniqueLessons.add(lessonId);
@@ -95,26 +133,32 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
 
     for (final event in _events) {
       if (event['student_id'] == studentId &&
-          event['event_type'] == 'quiz_submitted') {
+          _isQuizSubmittedEvent(event['event_type'])) {
         final lessonId = event['lesson_id'] as String?;
         if (lessonId != null) {
-          // Keep the latest attempt per lesson
-          if (!quizAttempts.containsKey(lessonId) ||
-              (event['client_created_at'] as String?)?.compareTo(
-                    quizAttempts[lessonId]!['client_created_at'] as String,
-                  ) ==
-                  1) {
+          final existing = quizAttempts[lessonId];
+          final currentDate = event['client_created_at'] as String?;
+          final existingDate = existing?['client_created_at'] as String?;
+
+          final isNewer =
+              existing == null ||
+              (currentDate != null &&
+                  existingDate != null &&
+                  currentDate.compareTo(existingDate) > 0);
+
+          if (isNewer) {
             quizAttempts[lessonId] = event;
           }
         }
       }
     }
 
-    return quizAttempts.values.toList()..sort(
-      (a, b) => (b['client_created_at'] as String).compareTo(
-        a['client_created_at'] as String,
-      ),
-    );
+    return quizAttempts.values.toList()
+      ..sort((a, b) {
+        final aDate = a['client_created_at'] as String? ?? '';
+        final bDate = b['client_created_at'] as String? ?? '';
+        return bDate.compareTo(aDate);
+      });
   }
 
   int _getTotalQuizzesTaken(String studentId) {
@@ -149,7 +193,6 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Count unique stats
     int totalLessons = 0;
     int totalQuizzes = 0;
 
@@ -187,7 +230,6 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  // Stats Cards
                   Row(
                     children: [
                       _buildStatCard(
@@ -213,8 +255,6 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                     ],
                   ),
                   const SizedBox(height: 20),
-
-                  // Students List
                   Row(
                     children: [
                       const Icon(Icons.people, color: Colors.indigo),
@@ -229,7 +269,6 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-
                   if (_students.isEmpty)
                     Card(
                       child: Container(
@@ -360,7 +399,6 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Subject Progress (FIXED: shows max 3 per subject)
           const Text(
             '📚 Subject Progress:',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -370,10 +408,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           _buildSubjectProgress('🔬 Science', 'sci_', studentId),
           _buildSubjectProgress('📖 English', 'eng_', studentId),
           _buildSubjectProgress('🏛️ History', 'his_', studentId),
-
           const Divider(height: 24),
-
-          // Quiz Scores (FIXED: shows unique quiz attempts)
           if (quizAttempts.isNotEmpty) ...[
             const Text(
               '📝 Quiz Scores:',
@@ -381,14 +416,14 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             ),
             const SizedBox(height: 8),
             ...quizAttempts.take(10).map((quiz) {
-              final score = quiz['payload']?['quizScore'] ?? 0;
+              final payload = _parsePayload(quiz['payload']);
+              final score = payload?['quizScore'] ?? payload?['score'] ?? 0;
               final lessonId = quiz['lesson_id'] ?? '';
               final lessonName = _getLessonName(lessonId);
               final subject = _getSubjectFromLesson(lessonId);
-              final date = quiz['client_created_at'] != null
-                  ? DateTime.parse(
-                      quiz['client_created_at'],
-                    ).toString().substring(0, 16)
+              final createdAt = quiz['client_created_at'] as String?;
+              final date = createdAt != null
+                  ? DateTime.parse(createdAt).toString().substring(0, 16)
                   : '';
               final percentage = (score / 5) * 100;
 
@@ -428,8 +463,8 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                           color: percentage >= 80
                               ? Colors.green.shade100
                               : percentage >= 50
-                              ? Colors.orange.shade100
-                              : Colors.red.shade100,
+                                  ? Colors.orange.shade100
+                                  : Colors.red.shade100,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -440,26 +475,26 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                             color: percentage >= 80
                                 ? Colors.green.shade700
                                 : percentage >= 50
-                                ? Colors.orange.shade700
-                                : Colors.red.shade700,
+                                    ? Colors.orange.shade700
+                                    : Colors.red.shade700,
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        date.substring(0, 10),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey,
+                      if (date.length >= 10)
+                        Text(
+                          date.substring(0, 10),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
               );
             }),
           ],
-
           if (_getUniqueLessonsCompleted(studentId) == 0 &&
               quizAttempts.isEmpty)
             const Padding(
@@ -477,9 +512,8 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
 
   Widget _buildSubjectProgress(String label, String prefix, String studentId) {
     final completed = _getSubjectLessonsCompleted(studentId, prefix);
-    // Cap at 3 (total lessons per subject)
     final displayCompleted = completed > 3 ? 3 : completed;
-    final total = 3;
+    const total = 3;
     final progress = displayCompleted / total;
 
     return Padding(
