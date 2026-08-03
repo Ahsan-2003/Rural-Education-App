@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:rural_education_app/models/student_profile.dart';
 import 'package:rural_education_app/screens/badges_screen.dart';
+import 'package:rural_education_app/screens/dashboard_screen.dart';
 import 'package:rural_education_app/screens/existing_screens.dart';
 import 'package:rural_education_app/screens/subject_screen.dart';
+import 'package:rural_education_app/screens/teacher_dashboard_screen.dart';
 import 'package:rural_education_app/services/database_service.dart';
 import 'package:rural_education_app/services/streak_service.dart';
 import 'package:rural_education_app/services/sync_service.dart';
@@ -142,6 +144,48 @@ class _HomeScreensState extends State<HomeScreens> {
     });
   }
 
+  // Add this method:
+  void _showTeacherLogin(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final pinController = TextEditingController();
+        return AlertDialog(
+          title: const Text('👨‍🏫 Teacher Access'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Enter teacher PIN:'),
+              const SizedBox(height: 12),
+              TextField(
+                controller: pinController,
+                obscureText: true,
+                maxLength: 4,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  hintText: '****',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  if (value == '9999') {
+                    // Teacher PIN
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const TeacherDashboardScreen(),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final profile = widget.profile;
@@ -151,7 +195,13 @@ class _HomeScreensState extends State<HomeScreens> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome, ${profile.name}! 👋'),
+        title: GestureDetector(
+          onLongPress: () {
+            // Teacher access via long press on title
+            _showTeacherLogin(context);
+          },
+          child: Text('Welcome, ${profile.name}! 👋'),
+        ),
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
         actions: [
@@ -206,6 +256,7 @@ class _HomeScreensState extends State<HomeScreens> {
             onPressed: _logout,
             tooltip: 'Switch Profile',
           ),
+          // Add this button in the AppBar actions:
         ],
       ),
       body: Column(
@@ -291,15 +342,25 @@ class _HomeScreensState extends State<HomeScreens> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Profile Avatar
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.green.shade100,
-                      child: Text(
-                        profile.name[0].toUpperCase(),
-                        style: TextStyle(
-                          color: Colors.green.shade700,
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
+                    GestureDetector(
+                      onLongPress: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const TeacherDashboardScreen(),
+                          ),
+                        );
+                      },
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.green.shade100,
+                        child: Text(
+                          profile.name[0].toUpperCase(),
+                          style: TextStyle(
+                            color: Colors.green.shade700,
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -439,39 +500,65 @@ class _HomeScreensState extends State<HomeScreens> {
                     const SizedBox(height: 30),
 
                     // Action Buttons
+                    // Replace the existing Row with 3 buttons:
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        // Start Learning
                         ElevatedButton.icon(
                           onPressed: _startLearning,
                           icon: const Icon(Icons.play_arrow),
-                          label: Text(
-                            _completedLessons > 0
-                                ? 'Continue Learning'
-                                : 'Start Learning',
-                          ),
+                          label: const Text('Learn'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 14,
+                              horizontal: 18,
+                              vertical: 12,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
+                        // Dashboard
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => DashboardScreen(
+                                  studentId: widget.profile.id,
+                                  studentName: widget.profile.name,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.dashboard, size: 18),
+                          label: const Text('Stats'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.indigo,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Switch Profile
                         OutlinedButton.icon(
                           onPressed: _logout,
-                          icon: const Icon(Icons.switch_account),
-                          label: const Text('Switch Profile'),
+                          icon: const Icon(Icons.switch_account, size: 18),
+                          label: const Text('Switch'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.green,
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 14,
+                              horizontal: 14,
+                              vertical: 12,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -490,7 +577,7 @@ class _HomeScreensState extends State<HomeScreens> {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
 }
