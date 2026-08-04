@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:rural_education_app/models/lesson.dart';
 import 'package:rural_education_app/services/database_service.dart';
-import 'package:rural_education_app/screens/quiz_screen.dart'; // NEW
+import 'package:rural_education_app/screens/quiz_screen.dart';
+import 'package:rural_education_app/widgets/audio_player_widget.dart';
 
 class LessonViewerScreen extends StatelessWidget {
   final Lesson lesson;
@@ -113,6 +114,16 @@ class LessonViewerScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
+          // ==========================================
+          // AUDIO PLAYER (NEW)
+          // ==========================================
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: AudioPlayerWidget(
+              text: lesson.content,
+              label: 'Read this lesson aloud 🔊',
+            ),
+          ),
           // Lesson content
           Expanded(
             child: Markdown(

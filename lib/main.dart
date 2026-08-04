@@ -6,6 +6,7 @@ import 'package:rural_education_app/services/content_cache_service.dart';
 import 'package:rural_education_app/services/database_service.dart';
 import 'package:rural_education_app/services/streak_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/tts_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +26,8 @@ void main() async {
   await ContentCacheService.init(); // NEW
 
   await StreakService.init(); // NEW
+
+  await TtsService.init(); // NEW
 
   runApp(const RuralEduApp());
 }
