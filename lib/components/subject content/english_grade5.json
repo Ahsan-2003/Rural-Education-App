@@ -3,45 +3,54 @@
   "subjectName": "English",
   "icon": "📖",
   "color": "purple",
-  "version": 1,
-  "description": "Nouns, Verbs & Sentences",
+  "version": 2,
+  "description": "Nouns, Verbs, Sentences & MORE!",
   "lessons": [
     {
       "id": "eng_1",
-      "title": "Nouns - Naming Words",
+      "title": "Nouns - Naming Words (Updated)",
       "order": 1,
-      "content": "# Nouns - Naming Words\n\n## What is a Noun?\nA noun is a word that names a **person, place, thing, or idea**.\n\n## Types of Nouns\n\n### 1. Proper Nouns\n- Names specific people/places\n- Always start with CAPITAL letter\n- Examples: Ravi, Delhi, India, Ganga\n\n### 2. Common Nouns\n- General names\n- Examples: boy, city, river, book\n\n### 3. Collective Nouns\n- Names a group\n- Examples: team, family, class, herd\n\n### 4. Abstract Nouns\n- Names ideas/feelings\n- Examples: love, happiness, courage\n\n## Practice\nIdentify nouns: \"Ravi went to school.\"\n- Ravi (Proper Noun)\n- School (Common Noun)\n\n**Nouns are everywhere!** 📝",
+      "content": "# Nouns - Naming Words\n\n## What is a Noun?\nA noun is a word that names a **person, place, thing, animal, or idea**.\n\n## Types of Nouns\n\n### 1. Proper Nouns\n- Names specific people/places\n- Always start with CAPITAL letter\n- Examples: Ravi, Delhi, India, Ganga, Taj Mahal\n\n### 2. Common Nouns\n- General names for people/places/things\n- Examples: boy, city, river, book, school\n\n### 3. Collective Nouns\n- Names a group of people or things\n- Examples: team, family, class, herd, flock, army\n\n### 4. Abstract Nouns\n- Names ideas, feelings, or qualities\n- Examples: love, happiness, courage, freedom, honesty\n\n### 5. Material Nouns\n- Names materials or substances\n- Examples: gold, silver, wood, water, cotton\n\n## Practice Exercise\nIdentify the nouns in this sentence:\n\"Ravi went to school in Delhi with his friends.\"\n\n**Answers:**\n- Ravi (Proper Noun)\n- School (Common Noun)\n- Delhi (Proper Noun)\n- Friends (Common Noun)\n\n**NEW in v2:** Added Material Nouns and Practice Exercise!\n\n**Nouns are everywhere!** 📝",
       "quiz": {
         "id": "eng_q1",
         "questions": [
-          {"id": "eq1", "type": "mcq", "text": "\"Delhi\" is a?", "options": ["Common", "Proper", "Collective", "Abstract"], "correctAnswer": "Proper"},
-          {"id": "eq2", "type": "mcq", "text": "\"Happiness\" is a?", "options": ["Proper", "Common", "Collective", "Abstract"], "correctAnswer": "Abstract"}
+          {"id": "eq1", "type": "mcq", "text": "\"Delhi\" is what type of noun?", "options": ["Common", "Proper", "Collective", "Abstract"], "correctAnswer": "Proper"},
+          {"id": "eq2", "type": "mcq", "text": "\"Happiness\" is what type of noun?", "options": ["Proper", "Common", "Collective", "Abstract"], "correctAnswer": "Abstract"},
+          {"id": "eq3", "type": "mcq", "text": "\"Gold\" is what type of noun?", "options": ["Proper", "Common", "Material", "Abstract"], "correctAnswer": "Material"},
+          {"id": "eq4", "type": "mcq", "text": "\"Team\" is what type of noun?", "options": ["Proper", "Common", "Collective", "Abstract"], "correctAnswer": "Collective"},
+          {"id": "eq5", "type": "true_false", "text": "Proper nouns always start with a capital letter.", "options": ["True", "False"], "correctAnswer": "True"}
         ]
       }
     },
     {
       "id": "eng_2",
-      "title": "Verbs - Action Words",
+      "title": "Verbs - Action Words (Updated)",
       "order": 2,
-      "content": "# Verbs - Action Words\n\n## What is a Verb?\nA verb shows **action** or **state of being**.\n\n## Types of Verbs\n\n### 1. Action Verbs\n- Show physical/mental action\n- Examples: run, eat, think, write\n\n### 2. Helping Verbs\n- Help main verbs\n- Examples: is, am, are, was, were\n- \"She IS reading\"\n\n### 3. Linking Verbs\n- Connect subject to description\n- Examples: is, seems, becomes\n- \"He IS happy\"\n\n## Examples in Sentences\n- Ravi **runs** fast.\n- Priya **is** a good student.\n- They **are** playing.\n\n**Verbs bring sentences to life!** ⚡",
+      "content": "# Verbs - Action Words\n\n## What is a Verb?\nA verb shows **action**, **occurrence**, or **state of being**.\n\n## Types of Verbs\n\n### 1. Action Verbs (Physical)\n- Show physical action you can see\n- Examples: run, jump, eat, write, dance, swim\n\n### 2. Action Verbs (Mental)\n- Show mental action\n- Examples: think, believe, remember, understand, imagine\n\n### 3. Helping Verbs (Auxiliary)\n- Help main verbs express meaning\n- Primary: be (is, am, are, was, were)\n- Modal: can, could, may, might, must, shall, should, will, would\n- Examples: \"She IS reading\", \"They CAN swim\"\n\n### 4. Linking Verbs\n- Connect subject to description\n- Examples: is, seems, becomes, appears, feels\n- \"He IS happy\", \"She SEEMS tired\"\n\n## Verb Forms\n\n### Base Form → Past → Past Participle\n- go → went → gone\n- eat → ate → eaten\n- write → wrote → written\n- run → ran → run\n\n## Examples in Sentences\n- Ravi **runs** fast. (action)\n- Priya **is** a good student. (linking)\n- They **can** play cricket. (helping)\n- I **believe** in you. (mental)\n\n**NEW in v2:** Added mental verbs, modal verbs, and verb forms!\n\n**Verbs bring sentences to life!** ⚡",
       "quiz": {
         "id": "eng_q2",
         "questions": [
-          {"id": "eq3", "type": "mcq", "text": "Which is an action verb?", "options": ["is", "am", "run", "were"], "correctAnswer": "run"},
-          {"id": "eq4", "type": "true_false", "text": "\"is\" is a helping verb.", "options": ["True", "False"], "correctAnswer": "True"}
+          {"id": "eq6", "type": "mcq", "text": "Which is a physical action verb?", "options": ["think", "believe", "run", "understand"], "correctAnswer": "run"},
+          {"id": "eq7", "type": "mcq", "text": "\"Can\" is what type of verb?", "options": ["Action", "Linking", "Modal helping", "Mental"], "correctAnswer": "Modal helping"},
+          {"id": "eq8", "type": "mcq", "text": "Past tense of \"write\" is?", "options": ["written", "wrote", "writes", "writing"], "correctAnswer": "wrote"},
+          {"id": "eq9", "type": "true_false", "text": "\"Is\" is a linking verb.", "options": ["True", "False"], "correctAnswer": "True"},
+          {"id": "eq10", "type": "mcq", "text": "Which is a mental action verb?", "options": ["jump", "dance", "swim", "imagine"], "correctAnswer": "imagine"}
         ]
       }
     },
     {
       "id": "eng_3",
-      "title": "Simple Sentences",
+      "title": "Simple Sentences (Updated)",
       "order": 3,
-      "content": "# Simple Sentences\n\n## What is a Sentence?\nA sentence is a group of words that makes **complete sense**.\n\n## Parts of a Sentence\n\n### Subject\n- Who or what the sentence is about\n- Example: **Ravi** reads a book.\n\n### Predicate\n- What the subject does\n- Example: Ravi **reads a book**.\n\n## Types of Sentences\n\n### 1. Declarative (Statement)\n- Tells something\n- Ends with period (.)\n- \"The sun rises in the east.\"\n\n### 2. Interrogative (Question)\n- Asks something\n- Ends with question mark (?)\n- \"What is your name?\"\n\n### 3. Imperative (Command)\n- Gives order/request\n- \"Please sit down.\"\n\n### 4. Exclamatory\n- Shows strong feeling\n- Ends with (!)\n- \"What a beautiful day!\"\n\n**Practice writing sentences!** ✍️",
+      "content": "# Simple Sentences\n\n## What is a Sentence?\nA sentence is a group of words that makes **complete sense** and expresses a complete thought.\n\n## Parts of a Sentence\n\n### 1. Subject\n- Who or what the sentence is about\n- Can be a noun, pronoun, or noun phrase\n- Example: **Ravi** reads a book.\n- Example: **The tall boy** won the race.\n\n### 2. Predicate\n- What the subject does or is\n- Contains the verb and other details\n- Example: Ravi **reads a book**.\n- Example: The tall boy **won the race**.\n\n## Types of Sentences\n\n### 1. Declarative (Statement)\n- Tells something or states a fact\n- Ends with period (.)\n- \"The sun rises in the east.\"\n- \"India is a great country.\"\n\n### 2. Interrogative (Question)\n- Asks something\n- Ends with question mark (?)\n- \"What is your name?\"\n- \"Where do you live?\"\n\n### 3. Imperative (Command/Request)\n- Gives order, makes request, or gives advice\n- Ends with period (.) or exclamation (!)\n- \"Please sit down.\"\n- \"Don't waste water!\"\n\n### 4. Exclamatory\n- Shows strong feeling or emotion\n- Ends with exclamation mark (!)\n- \"What a beautiful day!\"\n- \"Hurray! We won the match!\"\n\n## Sentence Structure Rules\n\n1. Every sentence must have a **subject** and **predicate**\n2. First word always starts with **capital letter**\n3. Ends with appropriate **punctuation** (. ? !)\n4. Words must be in **proper order** (Subject-Verb-Object)\n\n## Practice: Identify Sentence Types\n\n1. \"India got freedom in 1947.\" → **Declarative**\n2. \"How old are you?\" → **Interrogative**\n3. \"Close the door.\" → **Imperative**\n4. \"What a great match!\" → **Exclamatory**\n\n**NEW in v2:** Added sentence structure rules and practice exercises!\n\n**Practice writing sentences!** ✍️",
       "quiz": {
         "id": "eng_q3",
         "questions": [
-          {"id": "eq5", "type": "mcq", "text": "\"What is your name?\" is?", "options": ["Declarative", "Interrogative", "Imperative", "Exclamatory"], "correctAnswer": "Interrogative"},
-          {"id": "eq6", "type": "true_false", "text": "A sentence must have subject and predicate.", "options": ["True", "False"], "correctAnswer": "True"}
+          {"id": "eq11", "type": "mcq", "text": "\"What is your name?\" is what type?", "options": ["Declarative", "Interrogative", "Imperative", "Exclamatory"], "correctAnswer": "Interrogative"},
+          {"id": "eq12", "type": "mcq", "text": "A sentence must have?", "options": ["Only subject", "Only predicate", "Subject and predicate", "Only verb"], "correctAnswer": "Subject and predicate"},
+          {"id": "eq13", "type": "mcq", "text": "\"Please help me.\" is what type?", "options": ["Declarative", "Interrogative", "Imperative", "Exclamatory"], "correctAnswer": "Imperative"},
+          {"id": "eq14", "type": "mcq", "text": "Which sentence ends with (!)?", "options": ["Declarative", "Interrogative", "Imperative", "Exclamatory"], "correctAnswer": "Exclamatory"},
+          {"id": "eq15", "type": "mcq", "text": "First word of a sentence always starts with?", "options": ["Small letter", "Capital letter", "Number", "Any letter"], "correctAnswer": "Capital letter"}
         ]
       }
     }

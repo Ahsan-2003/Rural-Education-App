@@ -109,4 +109,56 @@ class ContentCacheService {
     }
     print('🗑️ All cache cleared');
   }
+
+  // ==========================================
+  // NEW: VERSION TRACKING
+  // ==========================================
+
+  // Get cached version of a pack
+  static int getCachedVersion(String subjectId) {
+    final cached = _cacheBox.get('pack_$subjectId');
+    if (cached == null) return 0;
+    return cached['version'] ?? 0;
+  }
+
+  // Get server version (from cached metadata)
+  static int getServerVersion(String subjectId) {
+    final metadata = _cacheBox.get('metadata_$subjectId');
+    if (metadata == null) return 0;
+    return metadata['version'] ?? 0;
+  }
+
+  // Save pack metadata (from server, without full content)
+  static Future<void> saveMetadata(
+    String subjectId,
+    Map<String, dynamic> metadata,
+  ) async {
+    await _cacheBox.put('metadata_$subjectId', {
+      'version': metadata['version'] ?? 1,
+      'lessonCount': metadata['lessonCount'] ?? 0,
+      'sizeBytes': metadata['sizeBytes'] ?? 0,
+      'checkedAt': DateTime.now().toIso8601String(),
+    });
+    print('📋 Metadata saved: $subjectId v${metadata['version']}');
+  }
+
+  // Check if update is available
+  static bool isUpdateAvailable(String subjectId) {
+    final cachedVersion = getCachedVersion(subjectId);
+    final serverVersion = getServerVersion(subjectId);
+    return serverVersion > cachedVersion;
+  }
+
+  // Get all packs that need updating
+  static List<String> getPacksNeedingUpdate() {
+    final needsUpdate = <String>[];
+    final subjects = ['math', 'science', 'english', 'history'];
+
+    for (final subjectId in subjects) {
+      if (isUpdateAvailable(subjectId)) {
+        needsUpdate.add(subjectId);
+      }
+    }
+    return needsUpdate;
+  }
 }

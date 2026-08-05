@@ -14,6 +14,87 @@ class DownloadService {
         .getPublicUrl('${subjectId}_grade5.json');
   }
 
+  // ==========================================
+  // NEW: CHECK FOR UPDATES
+  // ==========================================
+
+  // Check server version without downloading full content
+  static Future<int> checkServerVersion(String subjectId) async {
+    try {
+      final url = getPackUrl(subjectId);
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final version = data['version'] as int? ?? 1;
+        final lessonCount = (data['lessons'] as List?)?.length ?? 0;
+
+        // Save metadata for future checks
+        await ContentCacheService.saveMetadata(subjectId, {
+          'version': version,
+          'lessonCount': lessonCount,
+          'sizeBytes': response.body.length,
+        });
+
+        print(
+          '🔍 Server version for $subjectId: v$version ($lessonCount lessons)',
+        );
+        return version;
+      }
+      return 0;
+    } catch (e) {
+      print('❌ Failed to check version: $e');
+      return 0;
+    }
+  }
+
+  // Check all packs for updates
+  static Future<Map<String, bool>> checkForUpdates() async {
+    final subjects = ['math', 'science', 'english', 'history'];
+    final updates = <String, bool>{};
+
+    print('🔍 Checking for updates...');
+
+    for (final subjectId in subjects) {
+      await checkServerVersion(subjectId);
+      updates[subjectId] = ContentCacheService.isUpdateAvailable(subjectId);
+    }
+
+    final updateCount = updates.values.where((v) => v).length;
+    print('📊 Update check complete: $updateCount packs need updating');
+
+    return updates;
+  }
+
+  // ==========================================
+  // DELTA DOWNLOAD
+  // ==========================================
+
+  // Download only if newer version available
+  static Future<Map<String, dynamic>?> downloadPackIfNeeded({
+    required String subjectId,
+    Function(double progress)? onProgress,
+  }) async {
+    // Check if update is available
+    final isCached = ContentCacheService.isPackCached(subjectId);
+
+    if (isCached) {
+      await checkServerVersion(subjectId);
+      final needsUpdate = ContentCacheService.isUpdateAvailable(subjectId);
+
+      if (!needsUpdate) {
+        print('✅ $subjectId already up to date');
+        onProgress?.call(1.0);
+        return ContentCacheService.getCachedPack(subjectId)?['data'];
+      }
+
+      print('🔄 Update available for $subjectId');
+    }
+
+    // Download full pack (or delta if we had previous version)
+    return await downloadPack(subjectId: subjectId, onProgress: onProgress);
+  }
+
   // Download a lesson pack
   static Future<Map<String, dynamic>?> downloadPack({
     required String subjectId,
@@ -21,25 +102,31 @@ class DownloadService {
   }) async {
     try {
       final url = getPackUrl(subjectId);
-      print('📥 Downloading from: $url');
+      print('📥 Downloading: $url');
 
-      // Download the JSON file
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final packData = jsonDecode(response.body) as Map<String, dynamic>;
 
-        // Validate the data
         if (packData['lessons'] == null || packData['subjectId'] == null) {
           print('❌ Invalid pack data');
           return null;
         }
 
-        // Cache locally
+        // Save metadata
+        await ContentCacheService.saveMetadata(subjectId, {
+          'version': packData['version'] ?? 1,
+          'lessonCount': (packData['lessons'] as List).length,
+          'sizeBytes': response.body.length,
+        });
+
+        // Cache the pack
         await ContentCacheService.savePack(subjectId, packData);
 
+        final version = packData['version'] ?? 1;
         print(
-          '✅ Downloaded and cached: $subjectId (${response.body.length} bytes)',
+          '✅ Downloaded $subjectId v$version (${response.body.length} bytes)',
         );
         onProgress?.call(1.0);
 
@@ -52,6 +139,52 @@ class DownloadService {
       print('❌ Download error: $e');
       return null;
     }
+  }
+
+  // Download only packs that need updates
+  static Future<Map<String, int>> updateAllPacks({
+    Function(String subjectId, double progress)? onProgress,
+  }) async {
+    print('🔄 Checking for updates before download...');
+
+    // First, check all versions
+    await checkForUpdates();
+
+    final results = <String, int>{};
+    final subjects = ['math', 'science', 'english', 'history'];
+    final needsUpdate = ContentCacheService.getPacksNeedingUpdate();
+    final notCached = subjects
+        .where((s) => !ContentCacheService.isPackCached(s))
+        .toList();
+    final toDownload = {...needsUpdate, ...notCached}.toList();
+
+    if (toDownload.isEmpty) {
+      print('✅ All packs are up to date!');
+      return {'updated': 0, 'skipped': subjects.length};
+    }
+
+    print('📥 Downloading ${toDownload.length} packs...');
+    int updated = 0;
+    int skipped = 0;
+
+    for (final subjectId in subjects) {
+      if (toDownload.contains(subjectId)) {
+        onProgress?.call(subjectId, 0.0);
+        final result = await downloadPack(
+          subjectId: subjectId,
+          onProgress: (p) => onProgress?.call(subjectId, p),
+        );
+        if (result != null) {
+          updated++;
+        }
+      } else {
+        print('⏭️ Skipping $subjectId (already latest)');
+        skipped++;
+      }
+    }
+
+    print('✅ Update complete: $updated downloaded, $skipped skipped');
+    return {'updated': updated, 'skipped': skipped};
   }
 
   // Download multiple packs
@@ -85,6 +218,7 @@ class DownloadService {
   }
 
   // Get pack metadata without downloading full content
+  // Get pack metadata without downloading
   static Future<Map<String, dynamic>?> getPackMetadata(String subjectId) async {
     try {
       final url = getPackUrl(subjectId);
