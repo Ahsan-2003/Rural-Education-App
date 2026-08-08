@@ -218,7 +218,6 @@ class DownloadService {
   }
 
   // Get pack metadata without downloading full content
-  // Get pack metadata without downloading
   static Future<Map<String, dynamic>?> getPackMetadata(String subjectId) async {
     try {
       final url = getPackUrl(subjectId);
